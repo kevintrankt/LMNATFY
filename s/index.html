@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Let Me Notion AI That For You</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --border: #2e2e2e;
+      --text: #f5f5f5;
+      --text-muted: #888;
+      --accent: #2383e2;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .stage {
+      width: 100%;
+      max-width: 560px;
+      position: relative;
+    }
+
+    .search-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-height: 56px;
+    }
+
+    .search-input-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      min-height: 24px;
+    }
+
+    .search-input-wrap .typed {
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .search-input-wrap .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background: var(--accent);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 0.9s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .search-btn {
+      padding: 0.5rem 1rem;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      flex-shrink: 0;
+    }
+
+    .search-btn:active {
+      transform: scale(0.97);
+    }
+
+    .search-btn.clicked {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 2px rgba(35, 131, 226, 0.4);
+    }
+
+    /* Fake cursor that moves and clicks */
+    .fake-cursor {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      z-index: 9999;
+      transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: none;
+    }
+
+    .fake-cursor.visible {
+      display: block;
+    }
+
+    .fake-cursor svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+    }
+
+    .fake-cursor.clicking {
+      transform: translate(-50%, -50%) scale(0.85);
+    }
+
+    .hint {
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .error {
+      color: #ef4444;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .error a {
+      color: var(--accent);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="fake-cursor" id="cursor" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 3L5 21L10 14L14 21L16 20L12 13L20 12L5 3Z" fill="white" stroke="#333" stroke-width="1.5" />
+    </svg>
+  </div>
+
+  <div class="stage">
+    <div class="search-card" id="search-card">
+      <div class="search-input-wrap">
+        <span class="typed" id="typed"></span>
+        <span class="cursor" id="caret"></span>
+      </div>
+      <button type="button" class="search-btn" id="search-btn">Search Notion AI</button>
+    </div>
+    <p class="hint" id="hint">Opening Notion AI…</p>
+    <p class="error" id="error" style="display: none;"></p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q");
+    const typedEl = document.getElementById("typed");
+    const caretEl = document.getElementById("caret");
+    const searchBtn = document.getElementById("search-btn");
+    const searchCard = document.getElementById("search-card");
+    const cursorEl = document.getElementById("cursor");
+    const errorEl = document.getElementById("error");
+    const hintEl = document.getElementById("hint");
+
+    const NOTION_CHAT_BASE = "https://dev.notion.so/chat";
+    const TYPING_MS_PER_CHAR = 55;
+    const PAUSE_BEFORE_CURSOR = 400;
+    const CURSOR_MOVE_DURATION = 400;
+    const PAUSE_BEFORE_CLICK = 200;
+    const PAUSE_BEFORE_REDIRECT = 350;
+
+    function redirectToNotion(query) {
+      const aq = encodeURIComponent(query);
+      window.location.href = NOTION_CHAT_BASE + "?aq=" + aq;
+    }
+
+    function run() {
+      if (!q || !q.trim()) {
+        errorEl.style.display = "block";
+        errorEl.innerHTML = 'No query in URL. <a href="../">Create a link</a> from the home page.';
+        hintEl.style.display = "none";
+        caretEl.style.display = "none";
+        return;
+      }
+
+      const query = q.trim();
+      const chars = query.split("");
+
+      // 1. Type out the query
+      let i = 0;
+      function typeNext() {
+        if (i < chars.length) {
+          typedEl.textContent += chars[i];
+          i++;
+          setTimeout(typeNext, TYPING_MS_PER_CHAR);
+        } else {
+          // 2. Pause, show fake cursor at end of typed text, move to button, click, redirect
+          setTimeout(() => {
+            // Position cursor at end of typed text (right of caret)
+            const wrapRect = typedEl.parentElement.getBoundingClientRect();
+            const typedRect = typedEl.getBoundingClientRect();
+            const startX = typedRect.right + 4;
+            const startY = wrapRect.top + wrapRect.height / 2;
+
+            cursorEl.style.left = startX + "px";
+            cursorEl.style.top = startY + "px";
+            cursorEl.style.transform = "translate(-50%, -50%)";
+            cursorEl.classList.add("visible");
+
+            const btnRect = searchBtn.getBoundingClientRect();
+            const endX = btnRect.left + btnRect.width / 2;
+            const endY = btnRect.top + btnRect.height / 2;
+
+            // After a brief pause, move cursor to search button (CSS transition)
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                cursorEl.style.left = endX + "px";
+                cursorEl.style.top = endY + "px";
+              });
+            });
+
+            const clickAt = PAUSE_BEFORE_CURSOR + CURSOR_MOVE_DURATION;
+            setTimeout(() => {
+              cursorEl.classList.add("clicking");
+              searchBtn.classList.add("clicked");
+            }, clickAt);
+
+            setTimeout(() => {
+              searchBtn.classList.remove("clicked");
+              cursorEl.classList.remove("clicking");
+              hintEl.textContent = "Redirecting to Notion AI…";
+              redirectToNotion(query);
+            }, clickAt + PAUSE_BEFORE_REDIRECT);
+          }, PAUSE_BEFORE_CURSOR);
+        }
+      }
+
+      typeNext();
+    }
+
+    run();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LMNATFY — Let Me Notion AI That For You</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --border: #2e2e2e;
+      --text: #f5f5f5;
+      --text-muted: #888;
+      --accent: #2383e2;
+      --accent-hover: #3d94ed;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    main {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .tagline {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    .input-wrap {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 0.85rem 1rem;
+      font: inherit;
+      font-size: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--text-muted);
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    button {
+      padding: 0.85rem 1.25rem;
+      font: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      background: var(--accent-hover);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .url-section {
+      margin-top: 1.5rem;
+      padding: 1rem 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: none;
+    }
+
+    .url-section.visible {
+      display: block;
+    }
+
+    .url-section label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .url-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .url-value {
+      flex: 1;
+      font-size: 0.9rem;
+      color: var(--accent);
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      padding: 0.5rem 0.85rem;
+      font-size: 0.85rem;
+    }
+
+    .copied {
+      background: #22c55e;
+    }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>LMNATFY</h1>
+    <p class="tagline">Let Me Notion AI That For You</p>
+
+    <form id="form" novalidate>
+      <div class="input-wrap">
+        <input type="text" id="query" name="q" placeholder="Enter a question for Notion AI…”
+          autocomplete=" off" required />
+        <button type="submit" id="submit-btn">Create link</button>
+      </div>
+    </form>
+
+    <div class="url-section" id="url-section">
+      <label for="url-value">Share this link</label>
+      <div class="url-row">
+        <span class="url-value" id="url-value"></span>
+        <button type="button" class="copy-btn" id="copy-btn">Copy</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    When someone opens the link, they’ll see the question typed into a search box and then be taken to
+    <a href="https://dev.notion.so/chat" target="_blank" rel="noopener">Notion AI</a>.
+  </footer>
+
+  <script>
+    const form = document.getElementById("form");
+    const queryInput = document.getElementById("query");
+    const urlSection = document.getElementById("url-section");
+    const urlValue = document.getElementById("url-value");
+    const copyBtn = document.getElementById("copy-btn");
+
+    function getBaseUrl() {
+      const path = (window.location.pathname || "/").replace(/\/?index\.html$/i, "").replace(/\/$/, "") || "";
+      return window.location.origin + path;
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const q = queryInput.value.trim();
+      if (!q) return;
+
+      const base = getBaseUrl();
+      const sharePath = base + "/s/?q=" + encodeURIComponent(q);
+      urlValue.textContent = sharePath;
+      urlSection.classList.add("visible");
+      copyBtn.textContent = "Copy";
+    });
+
+    function showCopied() {
+      copyBtn.textContent = "Copied!";
+      copyBtn.classList.add("copied");
+      setTimeout(() => {
+        copyBtn.textContent = "Copy";
+        copyBtn.classList.remove("copied");
+      }, 2000);
+    }
+
+    copyBtn.addEventListener("click", () => {
+      const url = urlValue.textContent;
+      if (!url) return;
+
+      function fallbackCopy() {
+        const ta = document.createElement("textarea");
+        ta.value = url;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        ta.style.top = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try {
+          const ok = document.execCommand("copy");
+          if (ok) showCopied();
+        } finally {
+          document.body.removeChild(ta);
+        }
+      }
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(showCopied).catch(fallbackCopy);
+      } else {
+        fallbackCopy();
+      }
+    });
+  </script>
+</body>
+
+</html>
