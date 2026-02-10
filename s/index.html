@@ -9,27 +9,31 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    /* Notion-style light mode (default) */
+    /* Match reference: white, light greys, soft shadows, rounded */
     :root {
       --bg: #ffffff;
-      --surface: #ffffff;
-      --border: #ebeced;
+      --card-bg: #f7f6f3;
+      --border: #e8e7e4;
       --text: #37352f;
       --text-muted: #9b9a97;
-      --accent: #0b6e99;
-      --button-bg: #37352f;
-      --radius: 6px;
+      --pill-bg: #f0efec;
+      --hat: #c4a574;
+      --radius: 16px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+      --shadow-avatar: 0 2px 12px rgba(0, 0, 0, 0.08);
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
         --bg: #2f3437;
-        --surface: #373b3e;
+        --card-bg: #373b3e;
         --border: #454b4e;
         --text: rgba(255, 255, 255, 0.9);
         --text-muted: rgba(151, 154, 155, 0.95);
-        --accent: #529cca;
-        --button-bg: rgba(255, 255, 255, 0.9);
+        --pill-bg: #43484b;
+        --hat: #d4b896;
+        --shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        --shadow-avatar: 0 2px 12px rgba(0, 0, 0, 0.3);
       }
     }
 
@@ -47,43 +51,98 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 1.5rem;
+      padding: 2rem 1.5rem;
     }
 
     .stage {
       width: 100%;
-      max-width: 560px;
+      max-width: 600px;
       position: relative;
     }
 
-    .search-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem 1.25rem;
+    .page-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .avatar {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: var(--shadow-avatar);
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      min-height: 56px;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .avatar {
+        background: #3d4144;
+      }
+    }
+
+    .avatar svg {
+      width: 52px;
+      height: 52px;
+    }
+
+    .page-header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .search-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1rem 1.25rem 0.75rem;
+      min-height: 140px;
+    }
+
+    .context-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      background: var(--pill-bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      margin-bottom: 0.75rem;
+    }
+
+    .input-area {
+      min-height: 48px;
+      display: flex;
+      align-items: flex-start;
+      padding: 0.25rem 0;
     }
 
     .search-input-wrap {
       flex: 1;
       display: flex;
       align-items: center;
-      min-height: 24px;
+      min-height: 28px;
+      font-size: 0.9375rem;
+      color: var(--text);
     }
 
     .search-input-wrap .typed {
       color: var(--text);
-      font-size: 0.9375rem;
     }
 
     .search-input-wrap .cursor {
       display: inline-block;
       width: 2px;
       height: 1.1em;
-      background: var(--accent);
+      background: var(--text);
       margin-left: 2px;
       vertical-align: text-bottom;
       animation: blink 0.9s step-end infinite;
@@ -95,44 +154,73 @@
       }
     }
 
-    .search-btn {
-      padding: 0.5rem 1rem;
-      font: inherit;
-      font-size: 0.875rem;
-      font-weight: 500;
-      background: var(--button-bg);
-      color: var(--bg);
-      border: none;
-      border-radius: var(--radius);
+    .bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.5rem;
+      margin-top: 0.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .bar-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .bar-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .bar-item svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0.8;
+    }
+
+    .send-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--pill-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
       transition: transform 0.1s, box-shadow 0.1s;
       flex-shrink: 0;
     }
 
-    @media (prefers-color-scheme: dark) {
-      .search-btn {
-        color: #2f3437;
-      }
+    .send-btn svg {
+      width: 18px;
+      height: 18px;
     }
 
-    .search-btn:active {
+    .send-btn:active {
       transform: scale(0.97);
     }
 
-    .search-btn.clicked {
-      transform: scale(0.95);
+    .send-btn.clicked {
+      transform: scale(0.92);
       box-shadow: 0 0 0 2px var(--border);
     }
 
-    /* Fake cursor that moves and clicks */
     .fake-cursor {
       position: fixed;
       width: 20px;
       height: 20px;
       pointer-events: none;
       z-index: 9999;
-      transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-        top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: left 1s cubic-bezier(0.4, 0, 0.2, 1),
+        top 1s cubic-bezier(0.4, 0, 0.2, 1);
       display: none;
     }
 
@@ -165,7 +253,13 @@
     }
 
     .error a {
-      color: var(--accent);
+      color: #0b6e99;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .error a {
+        color: #529cca;
+      }
     }
   </style>
 </head>
@@ -178,12 +272,65 @@
   </div>
 
   <div class="stage">
-    <div class="search-card" id="search-card">
-      <div class="search-input-wrap">
-        <span class="typed" id="typed"></span>
-        <span class="cursor" id="caret"></span>
+    <header class="page-header">
+      <div class="avatar" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="30" fill="white" />
+          <circle cx="26" cy="28" r="2" fill="currentColor" />
+          <circle cx="38" cy="28" r="2" fill="currentColor" />
+          <path d="M22 24c2 0 4 1 4 3s-1 3-4 3-4-1-4-3 2-3 4-3zm20 0c2 0 4 1 4 3s-1 3-4 3-4-1-4-3 2-3 4-3z"
+            stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" />
+          <path d="M30 38c0-2 2-4 4-4s4 2 4 4" stroke="currentColor" stroke-width="1.2" fill="none"
+            stroke-linecap="round" />
+          <path d="M32 12c-10 0-14 5-14 9v2h28v-2c0-4-4-9-14-9z" fill="var(--hat, #c4a574)" stroke="currentColor"
+            stroke-width="1.5" stroke-linejoin="round" />
+        </svg>
       </div>
-      <button type="button" class="search-btn" id="search-btn">Search Notion AI</button>
+      <h1>What can I wrangle up for ya?</h1>
+    </header>
+
+    <div class="search-card" id="search-card">
+      <div class="context-pill">@ Add context</div>
+      <div class="input-area">
+        <div class="search-input-wrap">
+          <span class="typed" id="typed"></span>
+          <span class="cursor" id="caret"></span>
+        </div>
+      </div>
+      <div class="bottom-bar">
+        <div class="bar-left">
+          <span class="bar-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path
+                d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
+            </svg>
+            Auto
+          </span>
+          <span class="bar-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+              <circle cx="11" cy="11" r="3" />
+            </svg>
+            Research
+          </span>
+          <span class="bar-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="2" y1="12" x2="22" y2="12" />
+              <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+            </svg>
+            All sources
+          </span>
+        </div>
+        <button type="button" class="send-btn" id="search-btn" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5" />
+            <polyline points="5 12 12 5 19 12" />
+          </svg>
+        </button>
+      </div>
     </div>
     <p class="hint" id="hint">Opening Notion AI…</p>
     <p class="error" id="error" style="display: none;"></p>
@@ -202,10 +349,10 @@
 
     const NOTION_CHAT_BASE = "https://www.notion.so/chat";
     const TYPING_MS_PER_CHAR = 55;
-    const PAUSE_BEFORE_CURSOR = 400;
-    const CURSOR_MOVE_DURATION = 400;
-    const PAUSE_BEFORE_CLICK = 200;
-    const PAUSE_BEFORE_REDIRECT = 350;
+    const PAUSE_BEFORE_CURSOR = 300;
+    const CURSOR_MOVE_DURATION = 1000;
+    const PAUSE_BEFORE_CLICK = 150;
+    const PAUSE_BEFORE_REDIRECT = 250;
 
     function redirectToNotion(query) {
       const aq = encodeURIComponent(query);
