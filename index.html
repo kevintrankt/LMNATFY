@@ -105,19 +105,6 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 1rem 1.25rem 0.75rem;
-      min-height: 140px;
-    }
-
-    .context-pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.35rem 0.65rem;
-      font-size: 0.8125rem;
-      color: var(--text-muted);
-      background: var(--pill-bg);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      margin-bottom: 0.75rem;
     }
 
     .input-area {
@@ -146,30 +133,10 @@
     .bottom-bar {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
       padding-top: 0.5rem;
       margin-top: 0.25rem;
       border-top: 1px solid var(--border);
-    }
-
-    .bar-left {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .bar-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.8125rem;
-      color: var(--text-muted);
-    }
-
-    .bar-item svg {
-      width: 14px;
-      height: 14px;
-      opacity: 0.8;
     }
 
     .create-btn {
@@ -298,37 +265,11 @@
 
     <form id="form" novalidate>
       <div class="search-card">
-        <div class="context-pill">@ Add context</div>
         <div class="input-area">
-          <input type="text" id="query" name="q" placeholder="Enter a question for Notion AI" autocomplete="off"
+          <input type="text" id="query" name="q" placeholder="Enter a prompt for Notion AI" autocomplete="off"
             required />
         </div>
         <div class="bottom-bar">
-          <div class="bar-left">
-            <span class="bar-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path
-                  d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
-              </svg>
-              Auto
-            </span>
-            <span class="bar-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8" />
-                <path d="M21 21l-4.35-4.35" />
-                <circle cx="11" cy="11" r="3" />
-              </svg>
-              Research
-            </span>
-            <span class="bar-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="2" y1="12" x2="22" y2="12" />
-                <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-              </svg>
-              All sources
-            </span>
-          </div>
           <button type="submit" class="create-btn" id="submit-btn">Create link</button>
         </div>
       </div>
